@@ -1,6 +1,6 @@
 ﻿module Gemini.Combinatorics {
-	export class PlaneGraphEmbbeder {
-		static embed(g: PlaneGraph, boundary: any, faceCenters: any, settings: PlaneGraphEmbbederSettings, outerFace: PlaneGraphFace) {
+	export class PlaneGraphEmbeder {
+		static embed(g: PlaneGraph, boundary: Drawings.Rect, faceCenters: Drawings.Point[], settings: PlaneGraphEmbederSettings, outerFace: PlaneGraphFace) {
 			const gClone = g.clone();
 			gClone.ensureFacesComputed();
 
@@ -9,7 +9,7 @@
 			return this.computeVerticesPosition(gClone, settings, outerFace, boundary, faceCenters);
 		}
 
-		private static findOuterFaceInClone(g: PlaneGraph, settings: PlaneGraphEmbbederSettings, outerFace: PlaneGraphFace) {
+		private static findOuterFaceInClone(g: PlaneGraph, settings: PlaneGraphEmbederSettings, outerFace: PlaneGraphFace) {
 			if (outerFace)
 				outerFace = g.faces[outerFace.index];
 			else {
@@ -30,12 +30,12 @@
 			return outerFace;
 		}
 
-		private static computeVerticesPosition(g: PlaneGraph, settings: PlaneGraphEmbbederSettings, outerFace: PlaneGraphFace, boundary: any, faceCenters :any) {
+		private static computeVerticesPosition(g: PlaneGraph, settings: PlaneGraphEmbederSettings, outerFace: PlaneGraphFace, boundary: Drawings.Rect, faceCenters: Drawings.Point[]) {
 			var a: number[][] = new Array(g.vertexCount);
 			var b = new Array(g.vertexCount);
-			for (var i = 0; i < g.vertexCount; i++) {
+			for (let i = 0; i < g.vertexCount; i++) {
 				a[i] = new Array(g.vertexCount);
-				for (var j = 0; j < g.vertexCount; j++)
+				for (let j = 0; j < g.vertexCount; j++)
 					a[i][j] = 0;
 			}
 			
@@ -94,13 +94,13 @@
 
 				vi += Math.floor(k1 / 2) + 1;
 				var mod = faceVertices.length;
-				for (var i = 0; i < k1; i++)
+				for (let i = 0; i < k1; i++)
 					b[faceVertices[vi-- % mod]] = [1.0 * i / k1, 0];
-				for (var i = 0; i < k2; i++)
+				for (let i = 0; i < k2; i++)
 					b[faceVertices[vi-- % mod]] = [1, 1.0 * i / k2];
-				for (var i = 0; i < k3; i++)
+				for (let i = 0; i < k3; i++)
 					b[faceVertices[vi-- % mod]] = [1 - 1.0 * i / k3, 1];
-				for (var i = 0; i < k4; i++)
+				for (let i = 0; i < k4; i++)
 					b[faceVertices[vi-- % mod]] = [0, 1 - 1.0 * i / k4];
 			}
 			else {
@@ -148,13 +148,13 @@
 				addedVertices[v] = true;
 			}
 
-			var result = new Array(g.vertexCount);
+			var result: Drawings.Point[] = new Array(g.vertexCount);
 
 			var matrixA = new Array(g.vertexCount);
 			var matrixB = new Array(g.vertexCount);
-			for (var i = 0; i < g.vertexCount; i++) {
+			for (let i = 0; i < g.vertexCount; i++) {
 				matrixA[i] = new Array(g.vertexCount);
-				for (var j = 0; j < g.vertexCount; j++) {
+				for (let j = 0; j < g.vertexCount; j++) {
 					matrixA[i][j] = [a[i][j], 1];
 				}
 				var s0 = new String(b[i][0]);
@@ -170,13 +170,13 @@
 			}
 
 			var matrixX = solve_lineq(matrixA, matrixB);
-			for (var i = 0; i < g.vertexCount; i++) {
-				var x = matrixX[i][0][0] * 1.0 / matrixX[i][0][1];
-				result[i] = [x, 0];
+			for (let i = 0; i < g.vertexCount; i++) {
+				const x = matrixX[i][0][0] * 1.0 / matrixX[i][0][1];
+				result[i] = new Drawings.Point(x, 0);
 			}
 
-			for (var i = 0; i < g.vertexCount; i++) {
-				for (var j = 0; j < g.vertexCount; j++) {
+			for (let i = 0; i < g.vertexCount; i++) {
+				for (let j = 0; j < g.vertexCount; j++) {
 					matrixA[i][j] = [a[i][j], 1];
 				}
 				var s1 = new String(b[i][1]);
@@ -192,14 +192,14 @@
 			}
 
 			var matrixY = solve_lineq(matrixA, matrixB);
-			for (var i = 0; i < g.vertexCount; i++) {
+			for (let i = 0; i < g.vertexCount; i++) {
 				var y = matrixY[i][0][0] * 1.0 / matrixY[i][0][1];
-				result[i][1] = y;
+				result[i].y = y;
 			}
 
 			if (faceCenters) {
 				var adjustmentIndex = 0;
-				for (var i = 0; i < g.faceCount; i++) {
+				for (let i = 0; i < g.faceCount; i++) {
 					var f = g.faces[i];
 
 					if (f === outerFace) {
@@ -207,17 +207,17 @@
 						adjustmentIndex--;
 					}
 					else if (f.size === 3) {
-						faceCenters.push([
+						faceCenters.push(new Drawings.Point(
 							(result[f.startEdge.start][0] + result[f.startEdge.end][0] + result[f.startEdge.inverse.prev.end][0]) / 3.0,
 							(result[f.startEdge.start][1] + result[f.startEdge.end][1] + result[f.startEdge.inverse.prev.end][1]) / 3.0
-						]);
+						));
 						adjustmentIndex--;
 					}
 					else {
-						faceCenters.push([
+						faceCenters.push(new Drawings.Point(
 							matrixX[i + g.vertexCount + adjustmentIndex][0][0] * 1.0 / matrixX[i + g.vertexCount + adjustmentIndex][0][1],
 							matrixY[i + g.vertexCount + adjustmentIndex][0][0] * 1.0 / matrixY[i + g.vertexCount + adjustmentIndex][0][1]
-						]);
+						));
 					}
 				}
 			}
@@ -225,7 +225,7 @@
 			return result;
 		}
 	}
-	export class PlaneGraphEmbbederSettings {
+	export class PlaneGraphEmbederSettings {
 		isOuterFaceBiggest = true;
 		putOuterFaceOnCircle = false;
 	}

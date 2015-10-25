@@ -63,10 +63,10 @@
 			g.firstEdge = new Array(this.vertexCount);
 			g.edges = new Array(this.edgeCount);
 
-			for (var i = 0; i < this.edgeCount; i++) {
-				var e = this.edges[i];
+			for (let i = 0; i < this.edgeCount; i++) {
+				const e = this.edges[i];
 				e.index = i;
-				var eClone = new PlaneEdge(e.start, e.end);
+				const eClone = new PlaneEdge(e.start, e.end);
 				eClone.index = i;
 				g.edges[i] = eClone;
 			}
@@ -121,10 +121,10 @@
 			g.edges = [];
 			g.firstEdge = new Array(vertexCount);
 			g.degrees = new Array(vertexCount);
-			for (var i = 0; i < vertexCount; i++)
+			for (let i = 0; i < vertexCount; i++)
 				g.degrees[i] = 0;
 
-			for (var i = 0; i < vertexCount; i++) {
+			for (let i = 0; i < vertexCount; i++) {
 				var prevEdge = undefined;
 				for (codeIndex++; code[codeIndex] !== "0"; codeIndex += 2) {
 					var neighbour: number;
@@ -139,7 +139,7 @@
 					}
 
 					neighbour--;
-					var e = new PlaneEdge(i, neighbour);
+					const e = new PlaneEdge(i, neighbour);
 					e.prev = prevEdge;
 
 					if (prevEdge)
@@ -159,11 +159,11 @@
 				g.firstEdge[i].prev = prevEdge;
 			}
 
-			for (var i = 0; i < vertexCount; i++) {
-				if (g.degrees[i] == 0)
+			for (let i = 0; i < vertexCount; i++) {
+				if (g.degrees[i] === 0)
 					continue;
-				var e = g.firstEdge[i];
-				var eLast = e;
+				let e = g.firstEdge[i];
+				const eLast = e;
 
 				do {
 					if (!e.inverse) {
@@ -176,14 +176,107 @@
 								ee = ee.next;
 							} while (ee !== eeLast);
 
-							if ((ee) && (ee.end == i) && (!ee.inverse)) {
+							if ((ee) && (ee.end === i) && (!ee.inverse)) {
 								e.inverse = ee;
 								ee.inverse = e;
 							}
 						}
 					}
 					e = e.next;
-				} while (e != eLast);
+				} while (e !== eLast);
+			}
+
+			return g;
+		}
+
+		static fromIntCode1(code: string) {
+			let codeIndex = 0;
+			const zeroCharCode = "0".charCodeAt(0);
+			let vertexCount = 0;
+			for (; code[codeIndex] !== " "; codeIndex++)
+				vertexCount = vertexCount * 10 + (code.charCodeAt(codeIndex) - zeroCharCode);
+			const adjancecyList: number[][] = new Array(vertexCount);
+			for (let i = 0; i < vertexCount; i++) {
+				adjancecyList[i] = [];
+				for (codeIndex++; code[codeIndex] !== "0"; codeIndex += 2) {
+					let neighbour = 0;
+					for (; code[codeIndex] !== " "; codeIndex++)
+						neighbour = neighbour * 10 + (code.charCodeAt(codeIndex) - zeroCharCode);
+
+					neighbour--;
+					adjancecyList[i].push(neighbour);
+				}
+
+				codeIndex++;
+			}
+
+			return this.fromAdjancecyList(adjancecyList);
+		}
+
+
+		toAdjancecyList() {
+			const adjancecyList: number[][] = new Array(this.vertexCount);
+			for (let i = 0; i < this.vertexCount; i++) {
+				adjancecyList[i] = this.getNeighbours(i);
+			}
+			return adjancecyList;
+		}
+
+		static fromAdjancecyList(adjancecyList: number[][]) {
+			const vertexCount = adjancecyList.length;
+			var g = new PlaneGraph();
+			g.vertexCount = vertexCount;
+			g.edgeCount = 0;
+			g.edges = [];
+			g.firstEdge = new Array(vertexCount);
+			g.degrees = new Array(vertexCount);
+			for (var i = 0; i < vertexCount; i++) {
+				g.degrees[i] = 0;
+
+				var prevEdge = undefined;
+				adjancecyList[i].forEach((neighbour) => {
+					var e = new PlaneEdge(i, neighbour);
+					e.prev = prevEdge;
+
+					if (prevEdge)
+						prevEdge.next = e;
+					else
+						g.firstEdge[i] = e;
+
+					prevEdge = e;
+
+					g.edges.push(e);
+					g.edgeCount++;
+					g.degrees[i]++;
+				});
+				prevEdge.next = g.firstEdge[i];
+				g.firstEdge[i].prev = prevEdge;
+			}
+
+			for (let i = 0; i < vertexCount; i++) {
+				if (g.degrees[i] === 0)
+					continue;
+				let e = g.firstEdge[i];
+				const eLast = e;
+				do {
+					if (!e.inverse) {
+						let ee = g.firstEdge[e.end];
+						const eeLast = ee;
+						if (ee) {
+							do {
+								if ((ee.end === i) && (!ee.inverse))
+									break;
+								ee = ee.next;
+							} while (ee !== eeLast);
+
+							if ((ee) && (ee.end === i) && (!ee.inverse)) {
+								e.inverse = ee;
+								ee.inverse = e;
+							}
+						}
+					}
+					e = e.next;
+				} while (e !== eLast);
 			}
 
 			return g;
