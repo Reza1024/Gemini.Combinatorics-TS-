@@ -27,8 +27,10 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="Gemini.Combinatorics.PlaneGraph.ts" />
+    <TypeScriptCompile Include="Combinatorics\PlaneGraphFace.ts" />
+    <TypeScriptCompile Include="Combinatorics\PlaneGraph.ts" />
+    <TypeScriptCompile Include="Combinatorics\PlaneEdge.ts" />
+    <TypeScriptCompile Include="Combinatorics\PlaneGraphOperators.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
@@ -50,7 +52,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>5059</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
