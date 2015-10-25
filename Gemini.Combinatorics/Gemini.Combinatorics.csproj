@@ -28,6 +28,7 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="Combinatorics\BorislavMatrix.d.ts" />
     <TypeScriptCompile Include="Combinatorics\PlaneGraphEmbedder.ts">
       <SubType>Code</SubType>
@@ -36,6 +37,9 @@
     <TypeScriptCompile Include="Combinatorics\PlaneGraph.ts" />
     <TypeScriptCompile Include="Combinatorics\PlaneEdge.ts" />
     <TypeScriptCompile Include="Combinatorics\PlaneGraphOperators.ts" />
+    <TypeScriptCompile Include="Combinatorics\PlaneGraphToSvg.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
