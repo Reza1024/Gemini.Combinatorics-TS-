@@ -23,10 +23,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="Combinatorics\BorislavMatrix.js" />
     <Content Include="index.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Combinatorics\BorislavMatrix.d.ts" />
+    <TypeScriptCompile Include="Combinatorics\PlaneGraphEmbedder.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="Combinatorics\PlaneGraphFace.ts" />
     <TypeScriptCompile Include="Combinatorics\PlaneGraph.ts" />
     <TypeScriptCompile Include="Combinatorics\PlaneEdge.ts" />
