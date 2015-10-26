@@ -107,99 +107,18 @@
 
 		static fromIntCode(code: string) {
 			var codeIndex = 0;
-			if (!code)
-				return null;
 			const zeroCharCode = "0".charCodeAt(0);
 
 			var vertexCount = 0;
 			for (; code[codeIndex] !== " "; codeIndex++)
 				vertexCount = vertexCount * 10 + (code.charCodeAt(codeIndex) - zeroCharCode);
 
-			var g = new PlaneGraph();
-			g.vertexCount = vertexCount;
-			g.edgeCount = 0;
-			g.edges = [];
-			g.firstEdge = new Array(vertexCount);
-			g.degrees = new Array(vertexCount);
-			for (let i = 0; i < vertexCount; i++)
-				g.degrees[i] = 0;
-
-			for (let i = 0; i < vertexCount; i++) {
-				var prevEdge = undefined;
-				for (codeIndex++; code[codeIndex] !== "0"; codeIndex += 2) {
-					var neighbour: number;
-					if (code[codeIndex + 1] === " ")
-						neighbour = code.charCodeAt(codeIndex) - zeroCharCode;
-					else if (code[codeIndex + 2] === " ") {
-						neighbour = (code.charCodeAt(codeIndex) - zeroCharCode) * 10 + (code.charCodeAt(codeIndex + 1) - zeroCharCode);
-						codeIndex++;
-					} else {
-						neighbour = (code.charCodeAt(codeIndex) - zeroCharCode) * 100 + (code.charCodeAt(codeIndex + 1) - zeroCharCode) * 10 + (code.charCodeAt(codeIndex + 2) - zeroCharCode);
-						codeIndex += 2;
-					}
-
-					neighbour--;
-					const e = new PlaneEdge(i, neighbour);
-					e.prev = prevEdge;
-
-					if (prevEdge)
-						prevEdge.next = e;
-					else
-						g.firstEdge[i] = e;
-
-					prevEdge = e;
-
-					g.edges.push(e);
-					g.edgeCount++;
-					g.degrees[i]++;
-				}
-
-				codeIndex++;
-				prevEdge.next = g.firstEdge[i];
-				g.firstEdge[i].prev = prevEdge;
-			}
-
-			for (let i = 0; i < vertexCount; i++) {
-				if (g.degrees[i] === 0)
-					continue;
-				let e = g.firstEdge[i];
-				const eLast = e;
-
-				do {
-					if (!e.inverse) {
-						var ee = g.firstEdge[e.end];
-						var eeLast = ee;
-						if (ee) {
-							do {
-								if ((ee.end === i) && (!ee.inverse))
-									break;
-								ee = ee.next;
-							} while (ee !== eeLast);
-
-							if ((ee) && (ee.end === i) && (!ee.inverse)) {
-								e.inverse = ee;
-								ee.inverse = e;
-							}
-						}
-					}
-					e = e.next;
-				} while (e !== eLast);
-			}
-
-			return g;
-		}
-
-		static fromIntCode1(code: string) {
-			let codeIndex = 0;
-			const zeroCharCode = "0".charCodeAt(0);
-			let vertexCount = 0;
-			for (; code[codeIndex] !== " "; codeIndex++)
-				vertexCount = vertexCount * 10 + (code.charCodeAt(codeIndex) - zeroCharCode);
 			const adjancecyList: number[][] = new Array(vertexCount);
+
 			for (let i = 0; i < vertexCount; i++) {
 				adjancecyList[i] = [];
-				for (codeIndex++; code[codeIndex] !== "0"; codeIndex += 2) {
-					let neighbour = 0;
+				for (codeIndex++; code[codeIndex] !== "0"; codeIndex++) {
+					var neighbour = 0;
 					for (; code[codeIndex] !== " "; codeIndex++)
 						neighbour = neighbour * 10 + (code.charCodeAt(codeIndex) - zeroCharCode);
 
